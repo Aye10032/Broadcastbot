@@ -59,7 +59,12 @@ public class getMSG {
         String msg = "";
 
         Document document = Jsoup.parse(htmlStr);
-        Elements elements = document.select("div[id=root]").select("div[class=fold___xVOZX]");
+        Elements elements = null;
+        if (city.equals("湖北")) {
+            elements = document.select("div[id=root]").select("div[class=expand___wz_07]");
+        } else {
+            elements = document.select("div[id=root]").select("div[class=fold___xVOZX]");
+        }
         for (Element temp : elements) {
             String cityflag = temp.select("div[class=areaBlock1___3V3UU]").select("p[class=subBlock1___j0DGa]").text();
             if (cityflag.equals(city)) {
@@ -72,7 +77,7 @@ public class getMSG {
                 if (notsure.equals("")) {
                     notsure = "0";
                 }
-                msg = msg + cityname + " 目前确认" + sure + "例，疑似" + notsure + "例。其中：\n----------------\n";
+                msg = msg + cityname + " 目前确认" + sure + "例，治愈" + notsure + "例。其中：\n----------------\n";
                 Elements citys = temp.select("div[class=areaBlock2___27vn7]");
                 for (Element cityinfo : citys) {
                     if (cityinfo.select("p[class=subBlock1___j0DGa]").text().equals("")) {
@@ -87,7 +92,7 @@ public class getMSG {
                         if (notsure.equals("")) {
                             notsure = "0";
                         }
-                        msg = msg + cityname + " 确认" + sure + "例，疑似" + notsure + "例\n";
+                        msg = msg + cityname + " 确认" + sure + "例，治愈" + notsure + "例\n";
                     }
                 }
             }
@@ -123,9 +128,9 @@ public class getMSG {
         String htmlStr = downloadHtml(url);
         String news = "";
 
-        if (index > 5){
+        if (index > 5) {
             news = "数量太大，请前往 https://3g.dxy.cn/newh5/view/pneumonia 查看";
-        }else {
+        } else {
             Document document = Jsoup.parse(htmlStr);
             String msg = document.select("script[id=getTimelineService]").get(0).data();
             msg = msg.substring(msg.indexOf("["), msg.length() - 11);
