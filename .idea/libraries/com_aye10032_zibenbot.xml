@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="com.aye10032.zibenbot">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/target/com.aye10032.zibenbot.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
