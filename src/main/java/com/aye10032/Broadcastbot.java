@@ -166,6 +166,8 @@ public class Broadcastbot extends JcqAppAbstract implements ICQVer, IMsg, IReque
         } else if (msg.contains("疫情") && msg.split(" ").length == 2) {
             String city = msg.split(" ")[1];
             CQ.sendGroupMsg(fromGroup, new getMSG().getCity(city));
+        } else if (msg.equals("新闻")){
+            CQ.sendGroupMsg(fromGroup, new getMSG().getNews());
         }
 
         return MSG_IGNORE;

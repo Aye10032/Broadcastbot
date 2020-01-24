@@ -3,6 +3,8 @@ package com.aye10032;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -92,6 +94,55 @@ public class getMSG {
         }
 
         return msg;
+    }
+
+    public String getNews() {
+        String url = "https://3g.dxy.cn/newh5/view/pneumonia";
+        String htmlStr = downloadHtml(url);
+        String news = "";
+
+//        System.out.println(htmlStr);
+
+        Document document = Jsoup.parse(htmlStr);
+        String msg = document.select("script[id=getTimelineService]").get(0).data();
+        msg = msg.substring(msg.indexOf("["), msg.length() - 11);
+        JSONArray jsonArray = new JSONArray(msg);
+
+        JSONObject jsonObject = jsonArray.getJSONObject(0);
+        news = jsonObject.getString("title")
+                + "\n" + jsonObject.getString("pubDateStr")
+                + "\n" + jsonObject.getString("summary")
+                + "\n来源:" + jsonObject.getString("infoSource");
+
+
+        return news;
+    }
+
+    public String getNews(int index) {
+        String url = "https://3g.dxy.cn/newh5/view/pneumonia";
+        String htmlStr = downloadHtml(url);
+        String news = "";
+
+        if (index > 5){
+            news = "数量太大，请前往 https://3g.dxy.cn/newh5/view/pneumonia 查看";
+        }else {
+            Document document = Jsoup.parse(htmlStr);
+            String msg = document.select("script[id=getTimelineService]").get(0).data();
+            msg = msg.substring(msg.indexOf("["), msg.length() - 11);
+            JSONArray jsonArray = new JSONArray(msg);
+
+            for (int i = 0; i < index; i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(0);
+                news = jsonObject.getString("title")
+                        + "\n" + jsonObject.getString("pubDateStr")
+                        + "\n" + jsonObject.getString("summary")
+                        + "\n来源:" + jsonObject.getString("infoSource")
+                        + "\n--------------------";
+            }
+
+        }
+
+        return news;
     }
 
     public String getImg(String appDirectory) throws Exception {
