@@ -132,12 +132,12 @@ public class getMSG {
             JSONArray jsonArray = new JSONArray(msg);
 
             for (int i = 0; i < index; i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(0);
-                news = jsonObject.getString("title")
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                news = news + jsonObject.getString("title")
                         + "\n" + jsonObject.getString("pubDateStr")
                         + "\n" + jsonObject.getString("summary")
                         + "\n来源:" + jsonObject.getString("infoSource")
-                        + "\n--------------------";
+                        + "\n--------------------\n";
             }
 
         }
