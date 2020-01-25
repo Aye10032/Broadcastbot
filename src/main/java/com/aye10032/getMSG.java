@@ -10,9 +10,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class getMSG {
@@ -27,74 +29,72 @@ public class getMSG {
         String msg = "";
 
         Document document = Jsoup.parse(htmlStr);
+
         Elements elements = document.select("div[id=root]").select("div[class=mapTop___2VZCl]").select("p");
         for (Element temp : elements) {
             msg = msg + temp.text() + "\n";
         }
 
-        msg = msg + "--------------\n";
+        msg = msg + "------------\n";
 
-        elements = document.select("div[id=root]").select("div[class=areaBlock1___3V3UU]");
+        String jsonstr = document.select("script[id=getAreaStat]").get(0).data();
+        jsonstr = jsonstr.substring(jsonstr.indexOf("["), jsonstr.length() - 11);
 
-        for (Element temp : elements) {
-            String city = temp.select("p[class=subBlock1___j0DGa]").text();
-            String sure = temp.select("p[class=subBlock2___E7-fW]").text();
-            String notsure = temp.select("p[class=subBlock3___3mcDz]").text();
-            if (sure.equals("")) {
-                sure = "0";
-            }
-            if (notsure.equals("")) {
-                notsure = "0";
-            }
-            msg = msg + city + " 确认" + sure + "例，疑似" + notsure + "例\n";
+        JSONArray jsonArray = new JSONArray(jsonstr);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            msg = msg + jsonObject.getString("provinceName")
+                    + " 确认" + jsonObject.getInt("confirmedCount")
+                    + "例，疑似" + jsonObject.getInt("suspectedCount")
+                    + "例，死亡" + jsonObject.getInt("deadCount")
+                    + "例，治愈" + jsonObject.getInt("curedCount")
+                    + "例\n";
         }
 
         return msg;
     }
 
 
-    public String getCity(String city) {
+    public String get(String city) {
         String url = "https://3g.dxy.cn/newh5/view/pneumonia";
         String htmlStr = downloadHtml(url);
         String msg = "";
 
         Document document = Jsoup.parse(htmlStr);
-        Elements elements = null;
-        if (city.equals("湖北")) {
-            elements = document.select("div[id=root]").select("div[class=expand___wz_07]");
-        } else {
-            elements = document.select("div[id=root]").select("div[class=fold___xVOZX]");
-        }
+
+        Elements elements = document.select("div[id=root]").select("div[class=mapTop___2VZCl]").select("p");
         for (Element temp : elements) {
-            String cityflag = temp.select("div[class=areaBlock1___3V3UU]").select("p[class=subBlock1___j0DGa]").text();
-            if (cityflag.equals(city)) {
-                String cityname = temp.select("div[class=areaBlock1___3V3UU]").select("p[class=subBlock1___j0DGa]").text();
-                String sure = temp.select("div[class=areaBlock1___3V3UU]").select("p[class=subBlock2___E7-fW]").text();
-                String notsure = temp.select("div[class=areaBlock1___3V3UU]").select("p[class=subBlock3___3mcDz]").text();
-                if (sure.equals("")) {
-                    sure = "0";
+            msg = msg + temp.text() + "\n";
+        }
+
+        msg = msg + "------------\n";
+
+        String jsonstr = document.select("script[id=getAreaStat]").get(0).data();
+        jsonstr = jsonstr.substring(jsonstr.indexOf("["), jsonstr.length() - 11);
+
+        JSONArray jsonArray = new JSONArray(jsonstr);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            if (jsonObject.getString("provinceName").equals(city) || jsonObject.getString("provinceShortName").equals(city)) {
+                msg = msg + jsonObject.getString("provinceName")
+                        + " 确认" + jsonObject.getInt("confirmedCount")
+                        + "例，疑似" + jsonObject.getInt("suspectedCount")
+                        + "例，死亡" + jsonObject.getInt("deadCount")
+                        + "例，治愈" + jsonObject.getInt("curedCount")
+                        + "例。\n------------\n";
+                JSONArray cityarray = jsonObject.getJSONArray("cities");
+                for (int j = 0; j < cityarray.length(); j++) {
+                    JSONObject cityObject = cityarray.getJSONObject(j);
+                    msg = msg + cityObject.getString("cityName")
+                            + " 确认" + cityObject.getInt("confirmedCount")
+                            + "例，疑似" + cityObject.getInt("suspectedCount")
+                            + "例，死亡" + cityObject.getInt("deadCount")
+                            + "例，治愈" + cityObject.getInt("curedCount")
+                            + "例\n";
                 }
-                if (notsure.equals("")) {
-                    notsure = "0";
-                }
-                msg = msg + cityname + " 目前确认" + sure + "例，治愈" + notsure + "例。其中：\n----------------\n";
-                Elements citys = temp.select("div[class=areaBlock2___27vn7]");
-                for (Element cityinfo : citys) {
-                    if (cityinfo.select("p[class=subBlock1___j0DGa]").text().equals("")) {
-                        msg = msg + cityinfo.text();
-                    } else {
-                        cityname = cityinfo.select("p[class=subBlock1___j0DGa]").text();
-                        sure = cityinfo.select("p[class=subBlock2___E7-fW]").text();
-                        notsure = cityinfo.select("p[class=subBlock3___3mcDz]").text();
-                        if (sure.equals("")) {
-                            sure = "0";
-                        }
-                        if (notsure.equals("")) {
-                            notsure = "0";
-                        }
-                        msg = msg + cityname + " 确认" + sure + "例，治愈" + notsure + "例\n";
-                    }
-                }
+                msg = msg + jsonObject.getString("comment");
             }
         }
 
@@ -156,7 +156,7 @@ public class getMSG {
         String msg = "";
 
         Document document = Jsoup.parse(htmlStr);
-        String imgurl = document.select("div[id=root]").select("div[class=mapBox___qoGhu]").select("img[class=mapImg___3LuBG]").get(0).attr("src");
+        String imgurl = document.select("div[id=root]").select("img[class=mapImg___3LuBG]").get(0).attr("src");
 
         URL img = new URL(imgurl);
         HttpURLConnection conn = (HttpURLConnection) img.openConnection();
