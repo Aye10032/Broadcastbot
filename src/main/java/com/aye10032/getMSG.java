@@ -150,6 +150,52 @@ public class getMSG {
         return news;
     }
 
+    public String isTrue(String msg) {
+        String url = "https://vp.fact.qq.com/searchresult?title=" + msg;
+        OkHttpClient client = new OkHttpClient();
+        String body = null;
+
+        String result = "";
+
+        Request request = new Request.Builder().url(url).get().build();
+        try {
+
+            Response response = client.newCall(request).execute();
+            body = new String(response.body().bytes());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JSONObject jsonObject = new JSONObject(body);
+
+        if (jsonObject.getInt("total") == 0) {
+            result = "查询结果为0，试试别的关键词？";
+        } else {
+            JSONArray jsonArray = jsonObject.getJSONArray("content");
+            int flag = 3;
+            if (jsonObject.getInt("total") <= 3) {
+                flag = jsonObject.getInt("total");
+            }
+
+            for (int i = 0; i < flag; i++) {
+                JSONObject msgins = jsonArray.getJSONObject(i).getJSONObject("_source");
+
+                result = result
+                        + msgins.getString("title")
+                        + "\n" + msgins.getString("result")
+                        + "\n" + msgins.getString("abstract")
+                        + "\n来源:" + msgins.getString("source");
+                if (msgins.has("oriurl")) {
+                    result = result + "\n链接:" + msgins.getString("oriurl");
+                }
+                result = result + "\n---------------\n";
+            }
+
+        }
+
+        return result;
+    }
+
     public String getImg(String appDirectory) throws Exception {
         String url = "https://3g.dxy.cn/newh5/view/pneumonia";
         String htmlStr = downloadHtml(url);
