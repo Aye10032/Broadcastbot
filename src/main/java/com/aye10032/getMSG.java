@@ -32,7 +32,16 @@ public class getMSG {
 
         Elements elements = document.select("div[id=root]").select("div[class=mapTop___2VZCl]").select("p");
         for (Element temp : elements) {
-            msg = msg + temp.text() + "\n";
+            if (!temp.text().equals("")) {
+                msg = msg + temp.text() + "\n";
+            }
+        }
+
+        elements = document.select("div[id=root]").select("div[class=mapTop___2VZCl]").select("div[class=descText___Ui3tV]");
+        for (Element temp : elements) {
+            if (!temp.text().equals("")) {
+                msg = msg + temp.text() + "\n";
+            }
         }
 
         msg = msg + "------------\n";
@@ -65,7 +74,16 @@ public class getMSG {
 
         Elements elements = document.select("div[id=root]").select("div[class=mapTop___2VZCl]").select("p");
         for (Element temp : elements) {
-            msg = msg + temp.text() + "\n";
+            if (!temp.text().equals("")) {
+                msg = msg + temp.text() + "\n";
+            }
+        }
+
+        elements = document.select("div[id=root]").select("div[class=mapTop___2VZCl]").select("div[class=descText___Ui3tV]");
+        for (Element temp : elements) {
+            if (!temp.text().equals("")) {
+                msg = msg + temp.text() + "\n";
+            }
         }
 
         msg = msg + "------------\n";
@@ -105,8 +123,6 @@ public class getMSG {
         String url = "https://3g.dxy.cn/newh5/view/pneumonia";
         String htmlStr = downloadHtml(url);
         String news = "";
-
-//        System.out.println(htmlStr);
 
         Document document = Jsoup.parse(htmlStr);
         String msg = document.select("script[id=getTimelineService]").get(0).data();
